@@ -2,15 +2,11 @@ import { useState, useEffect } from "react";
 import axios from "axios";
 
 const api = axios.create({
-  baseURL: "https://ecbf-14-191-165-29.ngrok-free.app",
-  withCredentials: true, // Luôn gửi cookie
-  headers: {
-    "ngrok-skip-browser-warning": "true",
-  },
+  baseURL: "/api",
+  withCredentials: true,
 });
 
 export default function NoteAndSetting() {
-  // State cho ghi chú và đăng nhập
   const [note, setNote] = useState("");
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [email, setEmail] = useState("");

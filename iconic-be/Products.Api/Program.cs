@@ -20,8 +20,8 @@ builder.Services.AddCors(options =>
         {
             builder.
              SetIsOriginAllowed(origin =>
-                origin == "http://localhost:5173" ||
-                origin.EndsWith(".ngrok-free.app")) 
+                origin == "http://localhost" 
+            ) 
             .AllowAnyMethod()
             .AllowAnyMethod()
             .AllowAnyHeader()

@@ -10,6 +10,11 @@ services:
     ports:
       - "5000:5000"
       - "5001:5001"
+    expose:
+      - 5000
+    depends_on:
+      products.database:
+        condition: service_healthy
 
   products.database:
     image: postgres:latest
@@ -20,3 +25,8 @@ services:
       - POSTGRES_PASSWORD=postgres
     ports:
       - 5432:5432
+    healthcheck:
+      test: ["CMD", "pg_isready", "-U", "postgres"]
+      interval: 10s
+      retries: 5
+      start_period: 5s

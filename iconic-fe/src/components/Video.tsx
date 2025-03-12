@@ -14,14 +14,7 @@ export default function VideoList() {
   useEffect(() => {
     const fetchVideos = async () => {
       try {
-        const response = await axios.get(
-          "https://ecbf-14-191-165-29.ngrok-free.app/videos",
-          {
-            headers: {
-              "ngrok-skip-browser-warning": "true",
-            },
-          }
-        );
+        const response = await axios.get("/api/videos");
         const todayVideos = response.data.filter(
           (video: any) => video.dateShow.split("T")[0] === getTodayDate()
         );
