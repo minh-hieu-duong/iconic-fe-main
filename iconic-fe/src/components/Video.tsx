@@ -6,7 +6,7 @@ import Info from "./Info";
 import { toast } from "react-toastify";
 
 export const api = axios.create({
-  baseURL: "http://localhost:5000",
+  baseURL: "/api",
   withCredentials: true,
 });
 
