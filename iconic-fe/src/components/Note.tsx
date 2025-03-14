@@ -1,36 +1,44 @@
 import { useState, useEffect } from "react";
-import axios from "axios";
+import DatePicker from "react-datepicker";
+import "react-datepicker/dist/react-datepicker.css";
+import { api } from "./Video";
+import { toast } from "react-toastify";
 
-const api = axios.create({
-  baseURL: "/api",
-  withCredentials: true,
-});
-
-export default function NoteAndSetting() {
+export default function NoteAndSetting({ type }: any) {
   const [note, setNote] = useState("");
   const [isLoggedIn, setIsLoggedIn] = useState(false);
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(true);
+  const [openedLinks, setOpenedLinks] = useState<{ url: string }[]>([]);
 
-  // State cho video links
+  const fetchOpenedLinks = async () => {
+    try {
+      const response = await api.get("/payment-links");
+      setOpenedLinks(response.data);
+    } catch (error) {
+      console.error("Lỗi khi lấy danh sách link đã mở:", error);
+    }
+  };
+
+  useEffect(() => {
+    fetchOpenedLinks();
+  }, []);
+
   const [videoLinks, setVideoLinks] = useState([]);
   const [newVideoUrl, setNewVideoUrl] = useState("");
-  const [newVideoDate, setNewVideoDate] = useState(() => {
-    const today = new Date();
-    return today.toISOString().split("T")[0]; // YYYY-MM-DD
-  });
+  const [newVideoDate, setNewVideoDate] = useState(new Date());
+
+  const links = note.split("\n").filter((link) => link.trim() !== "");
+  const unopenedLinks = links.filter(
+    (link) => !openedLinks.some((openedLink) => openedLink.url === link)
+  );
 
   useEffect(() => {
     checkLoginStatus();
   }, []);
 
-  // Kiểm tra đăng nhập và tải dữ liệu nếu thành công
   const checkLoginStatus = async () => {
     try {
-      // Nếu gọi /note và /videos thành công thì coi như đã đăng nhập
-      await fetchNote();
-      await fetchVideoLinks();
+      await Promise.all([fetchNote(), fetchVideoLinks()]);
       setIsLoggedIn(true);
     } catch (error) {
       setIsLoggedIn(false);
@@ -39,7 +47,6 @@ export default function NoteAndSetting() {
     }
   };
 
-  // Lấy ghi chú từ API (API trả về object có trường 'content')
   const fetchNote = async () => {
     try {
       const response = await api.get("/note");
@@ -49,7 +56,10 @@ export default function NoteAndSetting() {
     }
   };
 
-  // Lấy danh sách video link từ API
+  useEffect(() => {
+    fetchNote();
+  }, [type]);
+
   const fetchVideoLinks = async () => {
     try {
       const response = await api.get("/videos");
@@ -59,139 +69,216 @@ export default function NoteAndSetting() {
     }
   };
 
-  // Xử lý đăng nhập
-  const handleLogin = async () => {
+  const handleClearNote = async () => {
     try {
-      await api.post("/login?useCookies=true&useSessionCookies=true", {
-        email,
-        password,
+      await api.put("/note", null, {
+        params: { newContent: "" },
       });
-      setIsLoggedIn(true);
-      setEmail("");
-      setPassword("");
-      await fetchNote();
-      await fetchVideoLinks();
+      setNote("");
+      toast("Đã xóa thành công!");
     } catch (error) {
-      alert("Sai email hoặc mật khẩu! Vui lòng thử lại.");
+      toast("Xóathất bại, vui lòng thử lại!");
     }
   };
 
-  // Xử lý đăng xuất
-  // const handleLogout = async () => {
-  //   try {
-  //     await api.delete("/logout");
-  //   } catch (error) {
-  //     console.error("Lỗi khi đăng xuất:", error);
-  //   } finally {
-  //     setIsLoggedIn(false);
-  //     setNote("");
-  //     setVideoLinks([]);
-  //   }
-  // };
+  const handleSaveNote = () => {
+    const content = openedLinks
+      .filter((link) => links.includes(link.url))
+      .map((link) => link.url)
+      .join("\n");
+    const blob = new Blob([content], { type: "text/plain" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = "OpenedLinks.txt";
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+  };
 
-  // Lưu ghi chú lên server
-  const handleSaveNote = async () => {
-    try {
-      await api.put("/note", null, { params: { newContent: note } });
-      alert("✅ Ghi chú đã lưu!");
-    } catch (error) {
-      alert("Lưu ghi chú thất bại, vui lòng thử lại!");
+  const openFirstUnopened = async () => {
+    if (unopenedLinks.length > 0) {
+      const url = unopenedLinks[0];
+      window.open(url, "_blank");
+
+      try {
+        await api.post("/payment-links", [{ url }]);
+        // Xóa link đã mở khỏi note
+        await fetchOpenedLinks();
+      } catch (error) {
+        console.error("Lỗi khi xử lý link:", error);
+      }
+    } else {
+      toast("Không còn link nào để mở!");
     }
   };
 
-  // Thêm video link
   const handleAddVideo = async () => {
     if (!newVideoUrl.trim()) {
-      alert("Vui lòng nhập URL video.");
+      toast("Vui lòng nhập URL video.");
       return;
     }
     try {
-      // Chuyển đổi newVideoDate (YYYY-MM-DD) thành DateTime có giờ UTC
-      const utcDate = new Date(newVideoDate + "T00:00:00Z");
-
-      const newVideo = { url: newVideoUrl, dateShow: utcDate.toISOString() };
+      const newVideo = { url: newVideoUrl, dateShow: newVideoDate };
       await api.post("/videos", [newVideo]);
-      alert("✅ Video đã thêm!");
+      toast("Video đã thêm!");
       setNewVideoUrl("");
       await fetchVideoLinks();
     } catch (error) {
       console.error("Lỗi khi thêm video:", error);
-      alert("Thêm video thất bại, vui lòng thử lại!");
+      toast("Thêm video thất bại, vui lòng thử lại!");
     }
   };
 
-  // Xóa video link theo id
   const handleDeleteVideo = async (id: any) => {
     try {
       await api.delete(`/videos/${id}`);
       await fetchVideoLinks();
     } catch (error) {
       console.error("Lỗi khi xóa video:", error);
-      alert("Xóa video thất bại, vui lòng thử lại!");
+      toast("Xóa video thất bại, vui lòng thử lại!");
     }
+  };
+  const handleGo = async (url: any) => {
+    console.log(url);
+    await api.post("/payment-links", [{ url }]);
+    // Xóa link đã mở khỏi note
+    await fetchOpenedLinks();
+    window.open(url, "_blank");
   };
 
   if (loading) return <p>⏳ Đang tải...</p>;
 
   return (
-    <div className="max-w-2xl mx-auto mt-10 p-6 bg-white shadow-lg rounded-lg">
+    <div className="max-w-2xl  mx-auto mt-10 p-6 bg-white shadow-lg rounded-lg">
       {isLoggedIn ? (
         <>
-          {/* Notepad Section */}
-          <h2 className="text-xl font-bold mb-4">📄 Notepad</h2>
-          <textarea
-            value={note}
-            onChange={(e) => setNote(e.target.value)}
-            className="w-full h-96 p-4 border rounded-lg mb-4"
-            placeholder="Nhập nội dung tại đây..."
-          />
-          <div className="flex justify-center mb-8">
+          <h2 className="text-xl font-bold mb-4 flex justify-center">
+            Danh sách link chưa mở
+          </h2>
+          <button
+            onClick={openFirstUnopened}
+            className="rounded-full hover:cursor-pointer w-full bg-gray-800 hover:bg-gray-700 text-white py-3 md:py-4 text-sm md:text-base font-medium transition-colors duration-200"
+          >
+            Mở link
+          </button>
+
+          <div className="bg-white rounded-xl p-2 border border-gray-200 max-h-80 overflow-y-auto">
+            {unopenedLinks.length > 0 ? (
+              unopenedLinks.map((link, index) => (
+                <div
+                  key={index}
+                  className="flex justify-between p-2 hover:bg-gray-100 transition"
+                >
+                  <span className="truncate max-w-[250px]">{link}</span>
+                  <button
+                    onClick={() => handleGo(link)}
+                    className="bg-blue-500 hover:bg-blue-600 text-white rounded-full px-3 py-1"
+                  >
+                    Go
+                  </button>
+                </div>
+              ))
+            ) : (
+              <p className="text-center py-4 text-gray-500">
+                Không có link nào
+              </p>
+            )}
+          </div>
+
+          <div className="mt-6">
+            <h2 className="text-xl font-bold flex justify-center">
+              Link đã mở
+            </h2>
+            <div className="bg-white rounded-xl p-2 border border-gray-200 max-h-80 overflow-y-auto">
+              {openedLinks.filter((link) => links.includes(link.url)).length >
+              0 ? (
+                openedLinks
+                  .filter((link) => links.includes(link.url))
+                  .map((link, index) => (
+                    <div
+                      key={index}
+                      className="flex justify-between p-2 hover:bg-gray-100 transition"
+                    >
+                      <span className="truncate max-w-[250px]">{link.url}</span>
+                      <button
+                        onClick={() => {
+                          window.open(link.url, "_blank");
+                        }}
+                        className="bg-blue-500 hover:bg-blue-600 text-white rounded-full px-3 py-1"
+                      >
+                        Go
+                      </button>
+                    </div>
+                  ))
+              ) : (
+                <p className="text-center py-4 text-gray-500">
+                  Chưa có link nào được mở
+                </p>
+              )}
+            </div>
+          </div>
+
+          <div className="flex justify-center gap-3 mt-4">
             <button
               onClick={handleSaveNote}
-              className="px-4 py-2 bg-blue-500 text-white rounded-lg mr-4"
+              className="rounded-full hover:cursor-pointer w-full p-3 bg-gray-800 hover:bg-gray-700 text-white py-2 text-sm md:text-base font-medium transition-colors duration-200"
             >
-              💾 Lưu Ghi chú
+              Tải xuống đã mở
+            </button>
+            <button
+              onClick={handleClearNote}
+              className="rounded-full hover:cursor-pointer p-3 w-full   bg-gray-800 hover:bg-gray-700 text-white py-2  text-sm md:text-base font-medium transition-colors duration-200"
+            >
+              Xóa hết link
             </button>
           </div>
 
+          {/* Phần Video Links giữ nguyên */}
           {/* Video Links Section */}
-          <div className="border-t pt-4">
-            <h2 className="text-xl font-bold mb-4">🎥 Video Links</h2>
-            <div className="mb-4 flex flex-col gap-2">
+          <div className="border-t-4 border-indigo-400 pt-4 mt-8 shadow-md bg-white">
+            <h2 className="text-xl font-bold mb-4 flex justify-center mt-8 text-gray-700">
+              🎥 Video Links
+            </h2>
+            <div className="mb-4 flex flex-col gap-2 p-4">
               <input
                 type="text"
                 value={newVideoUrl}
                 onChange={(e) => setNewVideoUrl(e.target.value)}
-                className="w-full p-2 border rounded-lg"
+                className="w-full p-2 border-2 border-indigo-200 rounded-lg"
                 placeholder="Nhập URL video..."
               />
-              <input
-                type="date"
-                value={newVideoDate}
-                onChange={(e) => setNewVideoDate(e.target.value)}
-                className="w-full p-2 border rounded-lg"
+
+              <DatePicker
+                selected={newVideoDate}
+                onChange={(date: any) => setNewVideoDate(date)}
+                dateFormat="dd/MM/yyyy"
+                className="w-full p-2 border-2 border-indigo-200 rounded-lg"
               />
+
               <button
                 onClick={handleAddVideo}
-                className="px-4 py-2 bg-green-500 text-white rounded-lg"
+                className="rounded-full hover:cursor-pointer w-full bg-gray-800 hover:bg-gray-700 text-white py-3 md:py-4 text-sm md:text-base font-medium transition-colors duration-200"
               >
-                ➕ Thêm Video
+                Thêm Video
               </button>
             </div>
+
             <ul>
               {videoLinks.map((video: any) => (
                 <li
                   key={video.id}
-                  className="flex items-center justify-between p-2 border-b"
+                  className="flex justify-between p-2 border-b hover:bg-gray-100"
                 >
                   <span className="truncate max-w-[60%]">{video.url}</span>
                   <div>
-                    <span className="text-sm text-gray-600 min-w-[80px] text-right mr-2">
-                      {new Date(video.dateShow).toLocaleDateString()}
+                    <span className="text-sm text-gray-600">
+                      {new Date(video.dateShow).toLocaleDateString("vi-VN")}
                     </span>
                     <button
                       onClick={() => handleDeleteVideo(video.id)}
-                      className="px-2 py-1 bg-red-500 text-white rounded-lg text-sm"
+                      className="ml-2 px-2 py-1 bg-red-500 text-white rounded-lg"
                     >
                       Xóa
                     </button>
@@ -202,29 +289,7 @@ export default function NoteAndSetting() {
           </div>
         </>
       ) : (
-        <div className="text-center">
-          <h2 className="text-xl font-bold mb-4">🔐 Đăng nhập</h2>
-          <input
-            type="email"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            className="w-full p-2 border rounded-lg mb-4"
-            placeholder="Nhập email..."
-          />
-          <input
-            type="password"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            className="w-full p-2 border rounded-lg mb-4"
-            placeholder="Nhập mật khẩu..."
-          />
-          <button
-            onClick={handleLogin}
-            className="px-4 py-2 bg-green-500 text-white rounded-lg"
-          >
-            🔑 Đăng nhập
-          </button>
-        </div>
+        <p>🔐 Bạn cần đăng nhập</p>
       )}
     </div>
   );

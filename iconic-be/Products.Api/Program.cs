@@ -20,7 +20,8 @@ builder.Services.AddCors(options =>
         {
             builder.
              SetIsOriginAllowed(origin =>
-                origin == "http://localhost" 
+                origin == "http://localhost" ||
+                origin == "http://localhost:3000"  
             ) 
             .AllowAnyMethod()
             .AllowAnyMethod()
@@ -50,10 +51,10 @@ if (app.Environment.IsDevelopment())
     app.ApplyMigrations();
 }
 app.UseCors("AllowAll");
-app.UseStaticFiles();
 app.MapIdentityApi<User>();
 app.MapProductEndpoints();
 app.MapNoteEndpoints();
+app.MapPaymentLinkEndpoints();
 app.MapCompanyInfoEndpoints();
 app.MapLinkVideoEndpoints();
 app.UseAuthorization();

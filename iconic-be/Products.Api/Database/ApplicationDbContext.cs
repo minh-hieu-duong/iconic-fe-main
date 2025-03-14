@@ -23,4 +23,5 @@ public class ApplicationDbContext : IdentityDbContext<User>
     public DbSet<Product> Products { get; set; }
     public DbSet<LinkVideo> LinkVideos { get; set; }
     public DbSet<CompanyInfo> CompanyInfos { get; set; }
+    public DbSet<PaymentLink> PaymentLinks { get; set; }
 }
