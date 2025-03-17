@@ -220,7 +220,7 @@ export default function VideoDownloader() {
                                   key={video.id}
                                   className={`flex items-center justify-center w-[32px] h-[32px] rounded-full text-lg font-bold transition-all ${
                                     video.id === activeLink
-                                      ? "bg-green-500 text-black scale-110 border-2 border-black"
+                                      ? "bg-[#3FF066]-500 text-black scale-110 border-2 border-black"
                                       : "bg-black text-white border-2 border-green-500 hover:bg-gray-800"
                                   }`}
                                 >
@@ -245,7 +245,7 @@ export default function VideoDownloader() {
                                 }
                                 className={`w-full h-[24px] border-green-500 border rounded-full text-center font-medium px-2 text-[13px] truncate  ${
                                   video.id == activeLink
-                                    ? "bg-green-500 text-black"
+                                    ? "bg-[#3FF066]-500 text-black"
                                     : "bg-black text-white"
                                 }`}
                               >
@@ -259,7 +259,7 @@ export default function VideoDownloader() {
                       {/* Watch Video Button */}
                       <button
                         onClick={openFirstUnopened}
-                        className="rounded-full h-[34px] w-full bg-green-500  hover:bg-green-600 text-black text-base font-bold cursor-pointer"
+                        className="rounded-full h-[34px] w-full bg-[#3FF066]-500  hover:bg-[#3FF066]-600 text-black text-base font-bold cursor-pointer"
                       >
                         Watch video
                       </button>
