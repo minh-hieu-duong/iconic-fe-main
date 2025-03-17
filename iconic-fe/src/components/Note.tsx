@@ -115,6 +115,7 @@ export default function NoteAndSetting({ type }: any) {
   };
 
   const handleAddVideo = async () => {
+    console.log("aaaaaaa");
     if (!newVideoUrl.trim()) {
       toast("Vui lòng nhập URL video.");
       return;
@@ -159,7 +160,7 @@ export default function NoteAndSetting({ type }: any) {
           </h2>
           <button
             onClick={openFirstUnopened}
-            className="rounded-full hover:cursor-pointer w-full bg-gray-800 hover:bg-gray-700 text-white py-3 md:py-4 text-sm md:text-base font-medium transition-colors duration-200"
+            className="rounded-full hover:cursor-pointer w-full bg-gray-800 hover:bg-gray-700 text-white py-3 md:py-4 text-sm md:text-base font-medium"
           >
             Mở link
           </button>

@@ -6,17 +6,19 @@ import Info from "./Info";
 import { toast } from "react-toastify";
 
 export const api = axios.create({
-  baseURL: "/api",
+  baseURL: "/api", ///api
   withCredentials: true,
 });
 
 export default function VideoDownloader() {
   const [tabs] = useState<any[]>([
     { id: "1", title: "Video", type: "video" },
-    { id: "2", title: "About", type: "about" },
-    { id: "3", title: "Note", type: "note" },
+    { id: "2", title: "Shop", type: "shop" },
+    { id: "3", title: "Payout", type: "payout" },
   ]);
   const [activeTab, setActiveTab] = useState(tabs[0].id);
+  const [activeLink, setActiveLink] = useState(0);
+
   const [chacha, setChacha] = useState(false);
   const [url, setUrl] = useState("");
   const [videos, setVideos] = useState<any[]>([]);
@@ -39,6 +41,7 @@ export default function VideoDownloader() {
             )
           : [];
         setVideos(todayVideos);
+        setActiveLink(todayVideos[0].id);
       } catch (error) {
         console.error("Lỗi khi lấy video:", error);
       }
@@ -46,6 +49,18 @@ export default function VideoDownloader() {
 
     fetchVideos();
   }, []);
+
+  useEffect(() => {
+    const savedLastWatchedId = localStorage.getItem("lastWatchedVideoId");
+    if (savedLastWatchedId) {
+      const lastWatchedId = JSON.parse(savedLastWatchedId);
+      const nextVideo = videos.find((video) => video.id > lastWatchedId);
+
+      if (nextVideo) {
+        setActiveLink(nextVideo.id);
+      }
+    }
+  }, [videos]); // Chạy lại khi danh sách video thay đổi
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   // Giả sử tab hiện tại là note
   const handleSearch = async () => {
@@ -102,6 +117,8 @@ export default function VideoDownloader() {
 
   // Khi click vào video -> Mở video & lưu trạng thái
   const handleOpenVideo = (id: any, url: any) => {
+    localStorage.setItem("lastWatchedVideoId", JSON.stringify(id));
+    setActiveLink(id + 1);
     localStorage.setItem("openedVideos", JSON.stringify([...openedVideos, id]));
     setOpenedVideos([...openedVideos, id]);
     window.open(url, "_blank");
@@ -114,192 +131,174 @@ export default function VideoDownloader() {
     );
     if (firstUnopened) handleOpenVideo(firstUnopened.id, firstUnopened.url);
   };
-  useEffect(() => {
-    console.log(openedVideos);
-  }, [openedVideos]);
 
   // Tìm kiếm video từ URL
 
   return (
-    <div className="min-h-screen bg-gray-100 flex flex-col">
-      <div className="flex justify-center pt-4">
-        <div className="w-full max-w-xl shadow-md rounded-t-lg bg-[#e9eef6]">
-          <div className="flex justify-center pt-4">
-            <div className="w-full max-w-xl">
-              <div className="relative flex w-full overflow-hidden bg-white p-1 shadow-lg">
-                <div className="absolute bottom-0 left-0 h-[2px] w-full bg-gray-100"></div>
+    <div>
+      <header className="w-full flex items-center justify-between px-3 py-3 bg-[#1C1C1D] h-[45px]">
+        <div className="text-2xl font-bold text-[#3FF066]">iconic</div>
+        <div className="relative w-[240px]">
+          <div className="flex items-center border border-green-500 rounded-full overflow-hidden h-[33px]">
+            <input
+              type="text"
+              placeholder="Link"
+              className="pr-3 py-1 bg-transparent text-white outline-none w-full pl-3 h-8"
+              onChange={(e) => setUrl(e.target.value)}
+              onKeyDown={(e) => e.key === "Enter" && handleSearch()}
+              value={url}
+            />
+            <button
+              onClick={handleSearch}
+              className="flex items-center justify-center w-5 h-5 aspect-square mx-1 bg-[#3FF066] rounded-full hover:cursor-pointer"
+            >
+              <img src="./arrow.png" alt="Arrow" className="w-3 h-3" />
+            </button>
+          </div>
+        </div>
+      </header>
+      <div className="min-h-screen flex flex-col">
+        {/* Tab Navigation */}
+        <div className="flex justify-center pt-2 bg-[#1C1C1D] pb-2">
+          <div className="w-full max-w-xl flex justify-between items-center px-2.5">
+            <div className="flex items-center justify-center w-8 h-8 rounded-full bg-black border border-gray-800 text-white font-bold">
+              {videos.length}
+            </div>
+            <div className="relative flex justify-center w-[224px] h-[32px] overflow-hidden bg-black p-1 rounded-lg border border-[#333]">
+              <div className="flex items-center justify-between w-full overflow-hidden">
+                {tabs.map((tab) => (
+                  <button
+                    key={tab.id}
+                    onClick={() => {
+                      setActiveTab(tab.id);
+                      setChacha(!chacha);
+                    }}
+                    className={`
+                   flex-1 text-sm font-medium cursor-pointer text-center py-1
+                   transition-all duration-200 ease-in-out
+                   ${
+                     activeTab === tab.id
+                       ? "text-white bg-[#222] rounded-[8px]"
+                       : "text-gray-400"
+                   }
+                 `}
+                  >
+                    <div>{tab.title}</div>
+                  </button>
+                ))}
+              </div>
+            </div>
+            <div className="flex items-center justify-center w-8 h-8 rounded-full bg-black border border-gray-800 text-white font-bold">
+              {videos.length}
+            </div>
+          </div>
+        </div>
 
-                {/* Active tab indicator - animated line */}
+        {/* Main Content */}
+        <div className="flex justify-center pb-10 w-full bg-[url('/bg-i.png')] bg-repeat bg-top h-[483px]">
+          <div className="w-full flex justify-center max-w-xl rounded-xl border border-[#333]">
+            <div className="bg-[#1C1C1DB2] w-[313px] h-[300px] mt-6">
+              {/* Tab Content */}
+              {tabs.map((tab) => (
                 <div
-                  className="absolute bottom-0 h-[2px] bg-indigo-600 transition-all duration-300 ease-in-out"
-                  style={{
-                    left: `calc(${
-                      (tabs.findIndex((tab) => tab.id === activeTab) * 100) /
-                      tabs.length
-                    }%)`,
-                    width: `calc(100% / ${tabs.length})`,
-                  }}
-                ></div>
-
-                <div className="flex w-full space-x-1 items-center">
-                  {tabs.map((tab) => (
-                    <button
-                      key={tab.id}
-                      onClick={() => {
-                        setActiveTab(tab.id);
-                        setChacha(!chacha);
-                      }}
-                      className={`
-                    group relative cursor-pointer flex-1 flex items-center justify-center px-4 py-3 text-sm font-medium
-                    transition-all duration-200 ease-in-out
-                    ${
-                      activeTab === tab.id
-                        ? "text-indigo-700"
-                        : "text-gray-600 hover:text-indigo-600"
-                    }
-                  `}
-                    >
-                      <div className="relative z-10 flex items-center gap-2">
-                        {activeTab === tab.id && (
-                          <span className="absolute inset-0 rounded-md bg-indigo-50/80 transition-all duration-200"></span>
-                        )}
-                        <span className="relative">{tab.title}</span>
+                  key={tab.id}
+                  className={activeTab === tab.id ? "block" : "hidden"}
+                >
+                  {/* Video Tab */}
+                  {tab.type === "video" && (
+                    <>
+                      {/* Video Numbers */}
+                      <div>
+                        {/* Div cha chứa viền và padding */}
+                        <div className="flex bg-white rounded-[47px] mb-4 px-4 w-full h-[48px] border-2 border-gray-200">
+                          {/* Div con chứa nội dung scrollable */}
+                          <div className="flex-1 overflow-x-auto no-scrollbar py-1">
+                            <div className="flex w-max space-x-2">
+                              {/* Thay mx-2 bằng space-x-2 */}
+                              {videos.map((video, i) => (
+                                <button
+                                  key={video.id}
+                                  className={`flex items-center justify-center w-[32px] h-[32px] rounded-full text-lg font-bold transition-all ${
+                                    video.id === activeLink
+                                      ? "bg-green-500 text-black scale-110 border-2 border-black"
+                                      : "bg-black text-white border-2 border-green-500 hover:bg-gray-800"
+                                  }`}
+                                >
+                                  {i + 1}
+                                </button>
+                              ))}
+                            </div>
+                          </div>
+                        </div>
                       </div>
 
-                      {/* Hover effect */}
-                      <span className="absolute inset-0 rounded-md bg-indigo-50/0 transition-all duration-200 group-hover:bg-indigo-50/50"></span>
-                    </button>
-                  ))}
+                      {/* Video List */}
+                      <div className="bg-white rounded-2xl mb-4 border-2 max-h-[152px] border-gray-200 p-2 mt-8">
+                        {/* Div container bên trong nhỏ hơn để chứa scrollbar */}
+                        <div className="overflow-x-auto no-scrollbar max-h-[132px] rounded-xl">
+                          <div className="space-y-2">
+                            {videos.map((video, i) => (
+                              <button
+                                key={video.id}
+                                onClick={() =>
+                                  handleOpenVideo(video.id, video.url)
+                                }
+                                className={`w-full h-[24px] border-green-500 border rounded-full text-center font-medium px-2 text-[13px] truncate  ${
+                                  video.id == activeLink
+                                    ? "bg-green-500 text-black"
+                                    : "bg-black text-white"
+                                }`}
+                              >
+                                Video {i + 1}
+                              </button>
+                            ))}
+                          </div>
+                        </div>
+                      </div>
+
+                      {/* Watch Video Button */}
+                      <button
+                        onClick={openFirstUnopened}
+                        className="rounded-full h-[34px] w-full bg-green-500  hover:bg-green-600 text-black text-base font-bold cursor-pointer"
+                      >
+                        Watch video
+                      </button>
+                    </>
+                  )}
+                  {/* Note Tab */}
+                  {tab.type === "Shop" && (
+                    <div>
+                      <Info />
+                    </div>
+                  )}
+                  {/* Note Tab */}
+                  {tab.type === "payout" && (
+                    <div>
+                      {isAuthenticated ? (
+                        <NoteAndSetting type={chacha} />
+                      ) : (
+                        <LoginForm onLogin={handleLogin} />
+                      )}
+                    </div>
+                  )}
+
+                  {/* Payout Tab */}
+                  {tab.type === "payout" && (
+                    <div className="bg-[#222] rounded-xl p-4 border border-[#333]">
+                      <h2 className="text-xl font-bold text-center mb-4 text-white">
+                        Payout
+                      </h2>
+                      <p className="text-center text-gray-300">
+                        Payout content goes here
+                      </p>
+                    </div>
+                  )}
                 </div>
-              </div>
+              ))}
             </div>
           </div>
         </div>
       </div>
-      <div className="flex justify-center pb-10">
-        <div className="w-full max-w-xl bg-white shadow-lg border border-gray-200">
-          <div className="p-4 md:p-6">
-            {/* Tab Content */}
-            {tabs.map((tab) => (
-              <div
-                key={tab.id}
-                className={activeTab === tab.id ? "block" : "hidden"}
-              >
-                {/* Video Tab */}
-                {tab.type === "video" && (
-                  <>
-                    {/* Search Input */}
-                    <div className="flex items-center w-full bg-white rounded-full overflow-hidden border border-gray-200 mb-3">
-                      <div className="flex items-center justify-center bg-gray-100 rounded-full w-10 h-10 md:w-12 md:h-12 min-w-10 md:min-w-12 ml-1">
-                        <span className="text-xs md:text-sm font-bold">
-                          {videos.length}
-                        </span>
-                      </div>
-                      <input
-                        type="text"
-                        placeholder="Nhập link"
-                        className="flex-1 px-3 py-2 md:py-3 outline-none text-sm md:text-base"
-                        value={url}
-                        onChange={(e) => setUrl(e.target.value)}
-                        onKeyDown={(e) => e.key === "Enter" && handleSearch()}
-                      />
-                      <button
-                        onClick={handleSearch}
-                        className="flex cursor-pointer items-center justify-center w-10 h-10 md:w-12 md:h-12 bg-green-500 hover:bg-green-600 text-white rounded-full shadow-md transition duration-300 ease-in-out"
-                      >
-                        <svg
-                          xmlns="http://www.w3.org/2000/svg"
-                          className="w-6 h-6"
-                          fill="none"
-                          stroke="currentColor"
-                          strokeWidth="2"
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                          viewBox="0 0 24 24"
-                        >
-                          <path d="m5 12 7-7 7 7" />
-                          <path d="M12 19V5" />
-                        </svg>
-                      </button>
-                    </div>
-
-                    <button
-                      onClick={openFirstUnopened}
-                      className="rounded-full hover:cursor-pointer w-full bg-gray-800 hover:bg-gray-700 text-white py-3 md:py-4 text-sm md:text-base font-medium transition-colors duration-200"
-                    >
-                      Xem video
-                    </button>
-
-                    {/* Video List */}
-                    <div className="bg-white rounded-xl p-2 md:p-3 border border-gray-200">
-                      <div className="bg-gray-100 p-2 md:p-3 mb-2 md:mb-3">
-                        <h2 className="text-center text-sm md:text-base font-medium">
-                          Danh sách link
-                        </h2>
-                      </div>
-
-                      <div className="space-y-2 md:space-y-3 max-h-[300px] md:max-h-[400px] overflow-y-auto pr-1 custom-scrollbar">
-                        {videos.length > 0 ? (
-                          [...videos]
-                            .sort((a) => (openedVideos.includes(a.id) ? 1 : -1))
-                            .map((video, index) => (
-                              <div
-                                key={video.id}
-                                className={`flex items-center justify-between bg-gray-50 p-2 md:p-3 hover:bg-gray-100 transition-colors duration-200 ${
-                                  openedVideos.includes(video.id)
-                                    ? "opacity-70"
-                                    : ""
-                                }`}
-                              >
-                                <div className="flex items-center gap-2 md:gap-3">
-                                  <div className="flex items-center justify-center bg-white rounded-full w-6 h-6 md:w-8 md:h-8 min-w-6 md:min-w-8 border border-gray-200">
-                                    <span className="text-xs md:text-sm font-bold">
-                                      {index + 1}
-                                    </span>
-                                  </div>
-                                  <span className="truncate max-w-[180px] md:max-w-[250px] text-sm md:text-base">
-                                    {video.url.length > 30
-                                      ? `${video.url.substring(0, 30)}...`
-                                      : video.url}
-                                  </span>
-                                </div>
-                                <button
-                                  onClick={() =>
-                                    handleOpenVideo(video.id, video.url)
-                                  }
-                                  className="rounded-full h-7 w-10 md:h-8 md:w-12 bg-blue-500 hover:bg-blue-600 text-white text-xs md:text-sm transition-colors duration-200"
-                                >
-                                  Go
-                                </button>
-                              </div>
-                            ))
-                        ) : (
-                          <div className="text-center py-4 text-gray-500 text-sm md:text-base">
-                            Không có video nào
-                          </div>
-                        )}
-                      </div>
-                    </div>
-                  </>
-                )}
-
-                {/* About Tab */}
-
-                {/* Note Tab */}
-                <div>
-                  {tab.type === "note" &&
-                    (isAuthenticated ? (
-                      <NoteAndSetting type={chacha} />
-                    ) : (
-                      <LoginForm onLogin={handleLogin} />
-                    ))}
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
-      </div>
-      {activeTab == 2 && <Info />}
     </div>
   );
 }
