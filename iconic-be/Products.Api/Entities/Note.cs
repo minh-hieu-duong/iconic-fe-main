@@ -4,11 +4,9 @@ namespace Products.Api.Entities
 {
     public class Note
     {
-        [Key]
-        public int Id { get; set; } = 1; 
+        public int Id { get; set; }
 
-        [Required]
-        public string Content { get; set; } = string.Empty;
+        public string Url { get; set; } = string.Empty;
     }
 
 }

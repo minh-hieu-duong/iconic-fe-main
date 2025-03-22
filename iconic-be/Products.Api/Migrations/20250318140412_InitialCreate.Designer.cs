@@ -12,8 +12,8 @@ using Products.Api.Database;
 namespace Products.Api.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20250314145139_updatesd")]
-    partial class updatesd
+    [Migration("20250318140412_InitialCreate")]
+    partial class InitialCreate
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -211,20 +211,13 @@ namespace Products.Api.Migrations
 
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
 
-                    b.Property<string>("Content")
+                    b.Property<string>("Url")
                         .IsRequired()
                         .HasColumnType("text");
 
                     b.HasKey("Id");
 
                     b.ToTable("Notes", "identity");
-
-                    b.HasData(
-                        new
-                        {
-                            Id = 1,
-                            Content = "Welcome to the shared note!"
-                        });
                 });
 
             modelBuilder.Entity("Products.Api.Entities.PaymentLink", b =>

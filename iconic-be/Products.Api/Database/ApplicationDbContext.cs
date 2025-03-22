@@ -16,7 +16,6 @@ public class ApplicationDbContext : IdentityDbContext<User>
     {
         base.OnModelCreating(builder);
 
-        builder.Entity<Note>().HasData(new Note { Id = 1, Content = "Welcome to the shared note!" });
         builder.HasDefaultSchema("identity");
     }
     public DbSet<Note> Notes { get; set; }

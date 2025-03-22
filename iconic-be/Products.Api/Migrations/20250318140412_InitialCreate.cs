@@ -15,11 +15,6 @@ namespace Products.Api.Migrations
             migrationBuilder.EnsureSchema(
                 name: "identity");
 
-            migrationBuilder.RenameTable(
-                name: "Products",
-                newName: "Products",
-                newSchema: "identity");
-
             migrationBuilder.CreateTable(
                 name: "AspNetRoles",
                 schema: "identity",
@@ -62,6 +57,22 @@ namespace Products.Api.Migrations
                 });
 
             migrationBuilder.CreateTable(
+                name: "CompanyInfos",
+                schema: "identity",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "integer", nullable: false)
+                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
+                    Name = table.Column<string>(type: "text", nullable: false),
+                    Description = table.Column<string>(type: "text", nullable: false),
+                    ImagePath = table.Column<string>(type: "text", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_CompanyInfos", x => x.Id);
+                });
+
+            migrationBuilder.CreateTable(
                 name: "LinkVideos",
                 schema: "identity",
                 columns: table => new
@@ -83,11 +94,40 @@ namespace Products.Api.Migrations
                 {
                     Id = table.Column<int>(type: "integer", nullable: false)
                         .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
-                    Content = table.Column<string>(type: "text", nullable: false)
+                    Url = table.Column<string>(type: "text", nullable: false)
                 },
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_Notes", x => x.Id);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "PaymentLinks",
+                schema: "identity",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "integer", nullable: false)
+                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
+                    Url = table.Column<string>(type: "text", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_PaymentLinks", x => x.Id);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "Products",
+                schema: "identity",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "integer", nullable: false)
+                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
+                    Name = table.Column<string>(type: "text", nullable: false),
+                    Price = table.Column<decimal>(type: "numeric", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Products", x => x.Id);
                 });
 
             migrationBuilder.CreateTable(
@@ -207,12 +247,6 @@ namespace Products.Api.Migrations
                         onDelete: ReferentialAction.Cascade);
                 });
 
-            migrationBuilder.InsertData(
-                schema: "identity",
-                table: "Notes",
-                columns: new[] { "Id", "Content" },
-                values: new object[] { 1, "Welcome to the shared note!" });
-
             migrationBuilder.CreateIndex(
                 name: "IX_AspNetRoleClaims_RoleId",
                 schema: "identity",
@@ -282,11 +316,23 @@ namespace Products.Api.Migrations
                 schema: "identity");
 
             migrationBuilder.DropTable(
+                name: "CompanyInfos",
+                schema: "identity");
+
+            migrationBuilder.DropTable(
                 name: "LinkVideos",
                 schema: "identity");
 
             migrationBuilder.DropTable(
                 name: "Notes",
+                schema: "identity");
+
+            migrationBuilder.DropTable(
+                name: "PaymentLinks",
+                schema: "identity");
+
+            migrationBuilder.DropTable(
+                name: "Products",
                 schema: "identity");
 
             migrationBuilder.DropTable(
@@ -296,11 +342,6 @@ namespace Products.Api.Migrations
             migrationBuilder.DropTable(
                 name: "AspNetUsers",
                 schema: "identity");
-
-            migrationBuilder.RenameTable(
-                name: "Products",
-                schema: "identity",
-                newName: "Products");
         }
     }
 }

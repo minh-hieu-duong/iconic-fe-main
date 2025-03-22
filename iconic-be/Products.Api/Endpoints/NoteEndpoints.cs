@@ -1,5 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Products.Api.Database;
+using Products.Api.Entities;
 
 namespace Products.Api.Endpoints;
 
@@ -7,21 +8,24 @@ public static class NoteEndpoints
 {
     public static void MapNoteEndpoints(this IEndpointRouteBuilder app)
     {
-        app.MapGet("/note", async (ApplicationDbContext context) =>
+        app.MapGet("/notes", async (ApplicationDbContext context) =>
         {
-            var note = await context.Notes.FirstOrDefaultAsync(n => n.Id == 1);
-            return Results.Ok(note);
+            var notes = await context.Notes.ToListAsync();
+            return Results.Ok(notes);
         });
 
-        app.MapPut("/note", async (ApplicationDbContext context, string newContent) =>
+        app.MapPost("/notes", async (ApplicationDbContext context, List<Note> notes) =>
         {
-            var note = await context.Notes.FirstOrDefaultAsync(n => n.Id == 1);
-            if (note is null) return Results.NotFound();
-
-            note.Content = newContent;
+            await context.Notes.AddRangeAsync(notes);
             await context.SaveChangesAsync();
+            return Results.Created("/notes", notes);
+        });
 
-            return Results.Ok(note);
+        app.MapDelete("/notes", async (ApplicationDbContext context) =>
+        {
+            context.Notes.RemoveRange(context.Notes);
+            await context.SaveChangesAsync();
+            return Results.NoContent();
         });
     }
 }
