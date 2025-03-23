@@ -9,8 +9,8 @@ export default defineConfig({
     react(),
     tailwindcss(),
     legacy({
-      targets: ["safari >= 13", "not IE 11"],
-      additionalLegacyPolyfills: ["regenerator-runtime/runtime"],
+      targets: ["safari >= 13", "not IE 11"], // Cập nhật targets để bao gồm Safari 13
+      additionalLegacyPolyfills: ["regenerator-runtime/runtime"], // Polyfill cho async/await
     }),
   ],
   server: {
