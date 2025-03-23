@@ -1,23 +1,11 @@
 {
-  "index-legacy.html": {
-    "file": "assets/index-legacy-cTtmJi2T.js",
-    "name": "index",
-    "src": "index-legacy.html",
-    "isEntry": true
-  },
   "index.html": {
-    "file": "assets/index-BASsMFoS.js",
+    "file": "assets/index-ClvRk-GQ.js",
     "name": "index",
     "src": "index.html",
     "isEntry": true,
     "css": [
-      "assets/index-BUTtATNA.css"
+      "assets/index-Dtn62Xmo.css"
     ]
-  },
-  "vite/legacy-polyfills-legacy": {
-    "file": "assets/polyfills-legacy-BjEDHMx7.js",
-    "name": "polyfills",
-    "src": "vite/legacy-polyfills-legacy",
-    "isEntry": true
   }
 }
