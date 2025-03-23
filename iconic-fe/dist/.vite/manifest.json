@@ -1,17 +1,17 @@
 {
   "index-legacy.html": {
-    "file": "assets/index-legacy-DhtMCXHu.js",
+    "file": "assets/index-legacy-cTtmJi2T.js",
     "name": "index",
     "src": "index-legacy.html",
     "isEntry": true
   },
   "index.html": {
-    "file": "assets/index-dX9Ceu0n.js",
+    "file": "assets/index-BASsMFoS.js",
     "name": "index",
     "src": "index.html",
     "isEntry": true,
     "css": [
-      "assets/index-BPbyP6Kn.css"
+      "assets/index-BUTtATNA.css"
     ]
   },
   "vite/legacy-polyfills-legacy": {
