@@ -3,7 +3,7 @@ import axios from "axios";
 import NoteAndSetting from "./Note";
 
 export default function VideoDownloader() {
-  const [tabs, setTabs] = useState<any[]>([
+  const [tabs] = useState<any[]>([
     { id: "1", title: "Video", type: "video" },
     { id: "2", title: "About", type: "about" },
     { id: "3", title: "Note", type: "note" },
@@ -96,16 +96,6 @@ export default function VideoDownloader() {
 
     setVideos((prev) => [newVideo, ...prev]);
     setUrl("");
-  };
-
-  const addTab = () => {
-    const newTab = {
-      id: Date.now().toString(),
-      title: "New Tab",
-      type: "video",
-    };
-    setTabs([...tabs, newTab]);
-    setActiveTab(newTab.id);
   };
 
   return (
