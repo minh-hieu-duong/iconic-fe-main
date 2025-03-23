@@ -13,6 +13,7 @@
     "@shadcn/ui": "^0.0.4",
     "@tailwindcss/vite": "^4.0.12",
     "@vitejs/plugin-legacy": "^6.0.2",
+    "autoprefixer": "^10.4.21",
     "axios": "^1.8.2",
     "lucide-react": "^0.483.0",
     "react": "^19.0.0",
