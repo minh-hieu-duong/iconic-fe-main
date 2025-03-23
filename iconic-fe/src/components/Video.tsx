@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import axios from "axios";
 import { LoginForm } from "./LoginForm";
 import { toast } from "react-toastify";
-// import { ChevronLeft, ChevronRight } from "lucide-react";
+import { ChevronLeft, ChevronRight } from "lucide-react";
 export const api = axios.create({
   baseURL: "/api", ///api
   withCredentials: true,
@@ -382,7 +382,7 @@ export default function VideoDownloader() {
                             onClick={handlePrevious}
                             className="bg-[#3FF066] rounded-full p-1 text-black"
                           >
-                            {/* <ChevronLeft className="w-6 h-6" strokeWidth={5} /> */}
+                            <ChevronLeft className="w-6 h-6" strokeWidth={5} />
                           </button>
 
                           <div className="w-[103px] h-[103px] bg-black flex items-center justify-center text-white">
@@ -403,7 +403,7 @@ export default function VideoDownloader() {
                             onClick={handleNext}
                             className="bg-[#3FF066] rounded-full p-1 text-black"
                           >
-                            {/* <ChevronRight className="w-6 h-6" strokeWidth={5} /> */}
+                            <ChevronRight className="w-6 h-6" strokeWidth={5} />
                           </button>
                         </div>
                       </div>

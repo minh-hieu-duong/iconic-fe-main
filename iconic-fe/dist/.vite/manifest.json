@@ -1,12 +1,12 @@
 {
   "index-legacy.html": {
-    "file": "assets/index-legacy-BbraV7o1.js",
+    "file": "assets/index-legacy-DhtMCXHu.js",
     "name": "index",
     "src": "index-legacy.html",
     "isEntry": true
   },
   "index.html": {
-    "file": "assets/index-BHKZTswx.js",
+    "file": "assets/index-dX9Ceu0n.js",
     "name": "index",
     "src": "index.html",
     "isEntry": true,
@@ -15,7 +15,7 @@
     ]
   },
   "vite/legacy-polyfills-legacy": {
-    "file": "assets/polyfills-legacy-DCN8RBOV.js",
+    "file": "assets/polyfills-legacy-BjEDHMx7.js",
     "name": "polyfills",
     "src": "vite/legacy-polyfills-legacy",
     "isEntry": true
