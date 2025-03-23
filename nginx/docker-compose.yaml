@@ -42,7 +42,7 @@ services:
     ports:
       - 80:80
     volumes:
-      - ../iconic-fe/dist:/usr/share/nginx/html
+      - ../iconic-fee/dist:/usr/share/nginx/html
       - ./default.conf:/etc/nginx/conf.d/default.conf
     depends_on:
       - products.api
