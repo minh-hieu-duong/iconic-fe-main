@@ -76,8 +76,8 @@ export default function VideoDownloader() {
         const response = await api.get("/notes");
         // Kiểm tra data có phải mảng không
 
-        setNotes(response.data);
-        setActiveLinkNote(response.data[0].id);
+        setNotes(response?.data ?? []);
+        setActiveLinkNote(response.data[0].id ?? 0);
       } catch (error) {
         console.error("Lỗi khi lấy note:", error);
       }
