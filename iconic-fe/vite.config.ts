@@ -18,6 +18,6 @@ export default defineConfig({
     allowedHosts: [".ngrok-free.app"],
   },
   build: {
-    manifest: true,
+    target: "es2019",
   },
 });
