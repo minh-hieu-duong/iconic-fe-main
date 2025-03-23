@@ -4,7 +4,7 @@ import { LoginForm } from "./LoginForm";
 import { toast } from "react-toastify";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 export const api = axios.create({
-  baseURL: "http://localhost:5000/", ///api
+  baseURL: "/api", //
   withCredentials: true,
 });
 
