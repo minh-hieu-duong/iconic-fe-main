@@ -1,7 +1,13 @@
 import "./App.css";
-
+import Video from "./components/Video.tsx";
+import { ToastContainer } from "react-toastify";
 function App() {
-  return <h1 className="text-3xl font-bold underline">Hello world!</h1>;
+  return (
+    <>
+      <Video />
+      <ToastContainer position="bottom-right" />
+    </>
+  );
 }
 
 export default App;
