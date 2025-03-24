@@ -1,11 +1,14 @@
 import { useState, useEffect } from "react";
 import axios from "axios";
 import { LoginForm } from "./LoginForm.tsx";
+import { VideoForm } from "./VideoForm.tsx";
+
+import { format } from "date-fns";
 import { toast } from "react-toastify";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import React from "react";
 export const api = axios.create({
-  baseURL: "/api", ///api
+  baseURL: "http://localhost:5000/", ///api
   withCredentials: true,
 });
 
@@ -15,8 +18,9 @@ export default function VideoDownloader() {
     { id: "2", title: "Shop", type: "shop" },
     { id: "3", title: "Payout", type: "payout" },
   ]);
-
+  const [isOpen, setIsOpen] = useState(false);
   const [activeIndex, setActiveIndex] = useState(0);
+  const [activeEdit, setActiveEdit] = useState(false);
 
   // Sample data - replace with your actual images
   const images = [
@@ -87,7 +91,15 @@ export default function VideoDownloader() {
     fetchVideos();
     fetchNotes();
   }, []);
-
+  const deleteAllNotes = async () => {
+    try {
+      await api.delete("/notes");
+      setNotes([]); // Xóa hết notes trong state
+      setActiveLinkNote(0); // Đặt active về 0
+    } catch (error) {
+      console.error("Lỗi khi xóa tất cả notes:", error);
+    }
+  };
   useEffect(() => {
     const savedLastWatchedId = localStorage.getItem("lastWatchedVideoId");
     if (savedLastWatchedId) {
@@ -193,12 +205,7 @@ export default function VideoDownloader() {
     window.open(url, "_blank");
   };
 
-  const handleOpenNotes = (id: any, url: any) => {
-    localStorage.setItem("lastWatchedNoteId", JSON.stringify(id));
-    setActiveLinkNote(id + 1);
-    console.log(id);
-    localStorage.setItem("openedNotes", JSON.stringify([...openedNotes, id]));
-    setOpenedNotes([...openedNotes, id]);
+  const handleOpenNotes = (url: any) => {
     window.open(url, "_blank");
   };
   console.log("Opened Notes:", openedNotes);
@@ -210,10 +217,20 @@ export default function VideoDownloader() {
     if (firstUnopened) handleOpenVideo(firstUnopened.id, firstUnopened.url);
   };
   const openFirstNoteUnopened = () => {
-    const firstUnopened = notes.find(
-      (note: any) => !openedNotes.includes(note.id)
-    );
-    if (firstUnopened) handleOpenNotes(firstUnopened.id, firstUnopened.url);
+    const textContent = notes.map((note) => `${note.url}`).join("\n");
+
+    const blob = new Blob([textContent], { type: "text/plain" });
+    const url = URL.createObjectURL(blob);
+
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = "payment.txt";
+    document.body.appendChild(a);
+    a.click();
+
+    // Dọn dẹp DOM
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
   };
   // Tìm kiếm video từ URL
   console.log(activeLinkNote);
@@ -272,7 +289,7 @@ export default function VideoDownloader() {
               </div>
             </div>
             <div className="flex items-center justify-center w-8 h-8 rounded-full bg-black border border-gray-800 text-white font-bold">
-              {videos.length}
+              {notes.length}
             </div>
           </div>
         </div>
@@ -286,7 +303,7 @@ export default function VideoDownloader() {
           className="flex justify-center pb-10 w-full bg-repeat bg-top h-[483px]"
         >
           <div className="w-full flex justify-center max-w-xl rounded-xl border border-[#333]">
-            <div className="bg-[#1C1C1DB2] w-[343px] h-[350px] px-6 pt-6 pb-10 mt-6 border rounded-2xl border-[#FFFFFF4D]">
+            <div className="bg-[#1C1C1DB2] w-[343px] m-h-[350px] px-6 pt-6 pb-10 mt-6 border rounded-2xl border-[#FFFFFF4D]">
               {/* Tab Content */}
               {tabs.map((tab) => (
                 <div
@@ -420,67 +437,128 @@ export default function VideoDownloader() {
                       </button>
                     </>
                   )}
-                  {/* Note Tab */}
                   {tab.type === "payout" && (
                     <div>
-                      {isAuthenticated ? (
+                      {isAuthenticated && !activeEdit ? (
                         <>
-                          {/* Video Numbers */}
                           <div>
                             {/* Div cha chứa viền và padding */}
-                            <div className="flex justify-center bg-white rounded-[47px] mb-4 px-3 w-full h-[48px] border-2 border-gray-200">
+                            <div className="flex justify-center items-center bg-white rounded-[47px] mb-4 px-3 w-full h-[48px] border-2 border-gray-200">
                               {/* Div con chứa nội dung scrollable */}
-                              <div className="flex-1 overflow-x-auto no-scrollbar py-1 px-2">
-                                <div className="flex w-max space-x-2">
-                                  {/* Thay mx-2 bằng space-x-2 */}
-                                  {notes.map((note, i) => (
-                                    <button
-                                      key={note.id}
-                                      className={`flex items-center justify-center w-[32px] h-[32px] rounded-full text-sm font-bold transition-all ${
-                                        note.id === activeLinkNote
-                                          ? "bg-[#3FF066] text-black scale-110 border-2 border-black"
-                                          : "bg-black text-white border-2 border-green-500 hover:bg-gray-800"
-                                      }`}
-                                    >
-                                      {i + 1}
-                                    </button>
-                                  ))}
-                                </div>
+                              <div className="flex w-max space-x-2 font-bold text-sm">
+                                Collect links
                               </div>
                             </div>
                           </div>
 
                           {/* Video List */}
-                          <div className="bg-white rounded-2xl mb-4 border-2 max-h-[152px] border-gray-200 p-2 mt-8">
+                          <div className="bg-white rounded-2xl mb-4 border-2 h-[152px] border-gray-200 p-2 mt-8">
                             {/* Div container bên trong nhỏ hơn để chứa scrollbar */}
                             <div className="overflow-x-auto no-scrollbar max-h-[132px] rounded-xl">
                               <div className="space-y-2">
                                 {notes.map((note, i) => (
                                   <button
                                     key={note.id}
-                                    onClick={() =>
-                                      handleOpenNotes(note.id, note.url)
-                                    }
-                                    className={`w-full h-[24px] border-green-500 border rounded-full text-center font-medium px-2 text-[13px] truncate  ${
-                                      note.id == activeLinkNote
-                                        ? "bg-[#3FF066] text-black"
-                                        : "bg-black text-white"
-                                    }`}
+                                    onClick={() => handleOpenNotes(note.id)}
+                                    className="w-full h-[24px] bg-[#3FF066] text-black border-green-500 border rounded-full text-center font-medium px-2 text-[13px] truncate"
                                   >
-                                    Link {i + 1}
+                                    {`ngày ${format(
+                                      new Date(note.dateShow),
+                                      "d-M-yyyy HH:mm"
+                                    )}`}
                                   </button>
                                 ))}
                               </div>
                             </div>
                           </div>
+                          <>
+                            <button
+                              onClick={openFirstNoteUnopened}
+                              className="rounded-full h-[34px] w-full bg-[#3FF066] text-black font-extrabold text-sm cursor-pointer"
+                            >
+                              Download
+                            </button>
+                            <button
+                              onClick={deleteAllNotes}
+                              className="rounded-full my-3 h-[34px] w-full bg-white text-black font-extrabold text-sm cursor-pointer"
+                            >
+                              Delete all
+                            </button>
+                            <button
+                              onClick={() => setActiveEdit(!activeEdit)}
+                              className="rounded-full h-[34px] w-full bg-white text-black font-extrabold text-sm cursor-pointer"
+                            >
+                              Add link
+                            </button>
+                          </>
+                        </>
+                      ) : isAuthenticated && activeEdit ? (
+                        <>
+                          {/* Video Numbers */}
+                          {isOpen ? (
+                            <div>
+                              {/* Div cha chứa viền và padding */}
+                              <div className="flex justify-center bg-white rounded-[47px] mb-4 px-3 w-full h-[48px] border-2 border-gray-200">
+                                {/* Div con chứa nội dung scrollable */}
+                                <div className="flex-1 overflow-x-auto no-scrollbar py-1 px-2">
+                                  <div className="flex w-max space-x-2">
+                                    {/* Thay mx-2 bằng space-x-2 */}
+                                    {videos.map((video, i) => (
+                                      <button
+                                        key={video.id}
+                                        className={`flex items-center justify-center w-[32px] h-[32px] rounded-full text-sm font-bold transition-all ${
+                                          video.id === activeLink
+                                            ? "bg-[#3FF066] text-black scale-110 border-2 border-black"
+                                            : "bg-black text-white border-2 border-green-500 hover:bg-gray-800"
+                                        }`}
+                                      >
+                                        {i + 1}
+                                      </button>
+                                    ))}
+                                  </div>
+                                </div>
+                              </div>
+                              {/* Video List */}
+                              <div className="bg-white rounded-2xl mb-4 border-2 max-h-[152px] border-gray-200 p-2 mt-8">
+                                {/* Div container bên trong nhỏ hơn để chứa scrollbar */}
+                                <div className="overflow-x-auto no-scrollbar max-h-[132px] rounded-xl">
+                                  <div className="space-y-2">
+                                    {videos.map((video, i) => (
+                                      <button
+                                        key={video.id}
+                                        onClick={() =>
+                                          handleOpenVideo(video.id, video.url)
+                                        }
+                                        className={`w-full h-[24px] border-green-500 border rounded-full text-center font-medium px-2 text-[13px] truncate  ${
+                                          video.id == activeLink
+                                            ? "bg-[#3FF066] text-black"
+                                            : "bg-black text-white"
+                                        }`}
+                                      >
+                                        Video {i + 1}
+                                      </button>
+                                    ))}
+                                  </div>
+                                </div>
+                              </div>
 
-                          {/* Watch Video Button */}
-                          <button
-                            onClick={openFirstNoteUnopened}
-                            className="rounded-full h-[34px] w-full bg-[#3FF066] text-black font-extrabold text-sm cursor-pointer"
-                          >
-                            Go Link
-                          </button>
+                              {/* Watch Video Button */}
+                              <button
+                                onClick={() => setActiveEdit(!activeEdit)}
+                                className="rounded-full h-[34px] w-full bg-[#3FF066] text-black font-extrabold text-sm cursor-pointer"
+                              >
+                                Add Link
+                              </button>
+                              <button
+                                onClick={() => setActiveEdit(!activeEdit)}
+                                className="rounded-full h-[34px] w-full bg-white mt-2 text-black font-extrabold text-sm cursor-pointer"
+                              >
+                                Back
+                              </button>
+                            </div>
+                          ) : (
+                            <VideoForm isOpen={isOpen} setIsOpen={setIsOpen} />
+                          )}
                         </>
                       ) : (
                         <LoginForm onLogin={handleLogin} />
