@@ -452,11 +452,10 @@ export default function VideoDownloader() {
                           </div>
 
                           {/* Video List */}
-                          <div className="bg-white rounded-2xl mb-4 border-2 h-[152px] border-gray-200 p-2 mt-8">
-                            {/* Div container bên trong nhỏ hơn để chứa scrollbar */}
+                          {/* <div className="bg-white rounded-2xl mb-4 border-2 h-[152px] border-gray-200 p-2 mt-8">
                             <div className="overflow-x-auto no-scrollbar max-h-[132px] rounded-xl">
                               <div className="space-y-2">
-                                {notes.map((note, i) => (
+                                {notes.map((note) => (
                                   <button
                                     key={note.id}
                                     onClick={() => handleOpenNotes(note.id)}
@@ -470,7 +469,7 @@ export default function VideoDownloader() {
                                 ))}
                               </div>
                             </div>
-                          </div>
+                          </div> */}
                           <>
                             <button
                               onClick={openFirstNoteUnopened}
