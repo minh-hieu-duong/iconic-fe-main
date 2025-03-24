@@ -437,6 +437,137 @@ export default function VideoDownloader() {
                       </button>
                     </>
                   )}
+                  {tab.type === "payout" && (
+                    <div>
+                      {isAuthenticated && !activeEdit ? (
+                        <>
+                          <div>
+                            {/* Div cha chứa viền và padding */}
+                            <div className="flex justify-center items-center bg-white rounded-[47px] mb-4 px-3 w-full h-[48px] border-2 border-gray-200">
+                              {/* Div con chứa nội dung scrollable */}
+                              <div className="flex w-max space-x-2 font-bold text-sm">
+                                Collect links
+                              </div>
+                            </div>
+                          </div>
+
+                          {/* Video List */}
+                          <div className="bg-white rounded-2xl mb-4 border-2 h-[152px] border-gray-200 p-2 mt-8">
+                            {/* Div container bên trong nhỏ hơn để chứa scrollbar */}
+                            <div className="overflow-x-auto no-scrollbar max-h-[132px] rounded-xl">
+                              <div className="space-y-2">
+                                {notes.map((note, i) => (
+                                  <button
+                                    key={note.id}
+                                    onClick={() => handleOpenNotes(note.id)}
+                                    className="w-full h-[24px] bg-[#3FF066] text-black border-green-500 border rounded-full text-center font-medium px-2 text-[13px] truncate"
+                                  >
+                                    {`ngày ${format(
+                                      new Date(note.dateShow),
+                                      "d-M-yyyy HH:mm"
+                                    )}`}
+                                  </button>
+                                ))}
+                              </div>
+                            </div>
+                          </div>
+                          <>
+                            <button
+                              onClick={openFirstNoteUnopened}
+                              className="rounded-full h-[34px] w-full bg-[#3FF066] text-black font-extrabold text-sm cursor-pointer"
+                            >
+                              Download
+                            </button>
+                            <button
+                              onClick={deleteAllNotes}
+                              className="rounded-full my-3 h-[34px] w-full bg-white text-black font-extrabold text-sm cursor-pointer"
+                            >
+                              Delete all
+                            </button>
+                            <button
+                              onClick={() => setActiveEdit(!activeEdit)}
+                              className="rounded-full h-[34px] w-full bg-white text-black font-extrabold text-sm cursor-pointer"
+                            >
+                              Add link
+                            </button>
+                          </>
+                        </>
+                      ) : isAuthenticated && activeEdit ? (
+                        <>
+                          {/* Video Numbers */}
+                          {isOpen ? (
+                            <div>
+                              {/* Div cha chứa viền và padding */}
+                              <div className="flex justify-center bg-white rounded-[47px] mb-4 px-3 w-full h-[48px] border-2 border-gray-200">
+                                {/* Div con chứa nội dung scrollable */}
+                                <div className="flex-1 overflow-x-auto no-scrollbar py-1 px-2">
+                                  <div className="flex w-max space-x-2">
+                                    {/* Thay mx-2 bằng space-x-2 */}
+                                    {videos.map((video, i) => (
+                                      <button
+                                        key={video.id}
+                                        className={`flex items-center justify-center w-[32px] h-[32px] rounded-full text-sm font-bold transition-all ${
+                                          video.id === activeLink
+                                            ? "bg-[#3FF066] text-black scale-110 border-2 border-black"
+                                            : "bg-black text-white border-2 border-green-500 hover:bg-gray-800"
+                                        }`}
+                                      >
+                                        {i + 1}
+                                      </button>
+                                    ))}
+                                  </div>
+                                </div>
+                              </div>
+                              {/* Video List */}
+                              <div className="bg-white rounded-2xl mb-4 border-2 max-h-[152px] border-gray-200 p-2 mt-8">
+                                {/* Div container bên trong nhỏ hơn để chứa scrollbar */}
+                                <div className="overflow-x-auto no-scrollbar max-h-[132px] rounded-xl">
+                                  <div className="space-y-2">
+                                    {videos.map((video, i) => (
+                                      <button
+                                        key={video.id}
+                                        onClick={() =>
+                                          handleOpenVideo(video.id, video.url)
+                                        }
+                                        className={`w-full h-[24px] border-green-500 border rounded-full text-center font-medium px-2 text-[13px] truncate  ${
+                                          video.id == activeLink
+                                            ? "bg-[#3FF066] text-black"
+                                            : "bg-black text-white"
+                                        }`}
+                                      >
+                                        Video {i + 1}
+                                      </button>
+                                    ))}
+                                  </div>
+                                </div>
+                              </div>
+
+                              {/* Watch Video Button */}
+                              <button
+                                onClick={() => setActiveEdit(!activeEdit)}
+                                className="rounded-full h-[34px] w-full bg-[#3FF066] text-black font-extrabold text-sm cursor-pointer"
+                              >
+                                Add Link
+                              </button>
+                              <button
+                                onClick={() => setActiveEdit(!activeEdit)}
+                                className="rounded-full h-[34px] w-full bg-white mt-2 text-black font-extrabold text-sm cursor-pointer"
+                              >
+                                Back
+                              </button>
+                            </div>
+                          ) : (
+                            <></>
+                            // <VideoForm isOpen={isOpen} setIsOpen={setIsOpen} />
+                          )}
+                        </>
+                      ) : (
+                        <></>
+
+                        // <LoginForm onLogin={handleLogin} />
+                      )}
+                    </div>
+                  )}
                 </div>
               ))}
             </div>
