@@ -144,6 +144,15 @@ export default function VideoDownloader() {
       toast("Lưu thất bại, vui lòng thử lại!");
     }
   };
+  const parseDateSafely = (dateStr: string) => {
+    // Thay thế khoảng trắng bằng 'T' và thêm múi giờ
+    const isoString = dateStr.replace(" ", "T") + "Z";
+    const parsedDate = new Date(isoString);
+
+    // Fallback nếu vẫn lỗi
+    return isNaN(parsedDate.getTime()) ? new Date() : parsedDate;
+  };
+
   // Hàm xử lý đăng nhập
   const handleLogin = (username: string, password: string) => {
     if (username === "admin" && password === "Admin123*") {
@@ -462,10 +471,10 @@ export default function VideoDownloader() {
                                     onClick={() => handleOpenNotes(note.id)}
                                     className="w-full h-[24px] bg-[#3FF066] text-black border-green-500 border rounded-full text-center font-medium px-2 text-[13px] truncate"
                                   >
-                                    {/* {`ngày ${format(
-                                      new Date(note.dateShow),
+                                    {`ngày ${format(
+                                      parseDateSafely(note.dateShow),
                                       "d-M-yyyy HH:mm"
-                                    )}`} */}
+                                    )}`}
                                   </button>
                                 ))}
                               </div>
