@@ -454,7 +454,7 @@ export default function VideoDownloader() {
                           {/* Video List */}
                           <div className="bg-white rounded-2xl mb-4 border-2 h-[152px] border-gray-200 p-2 mt-8">
                             {/* Div container bên trong nhỏ hơn để chứa scrollbar */}
-                            {/* <div className="overflow-x-auto no-scrollbar max-h-[132px] rounded-xl">
+                            <div className="overflow-x-auto no-scrollbar max-h-[132px] rounded-xl">
                               <div className="space-y-2">
                                 {notes.map((note, i) => (
                                   <button
@@ -462,14 +462,14 @@ export default function VideoDownloader() {
                                     onClick={() => handleOpenNotes(note.id)}
                                     className="w-full h-[24px] bg-[#3FF066] text-black border-green-500 border rounded-full text-center font-medium px-2 text-[13px] truncate"
                                   >
-                                    {`ngày ${format(
+                                    {/* {`ngày ${format(
                                       new Date(note.dateShow),
                                       "d-M-yyyy HH:mm"
-                                    )}`}
+                                    )}`} */}
                                   </button>
                                 ))}
                               </div>
-                            </div> */}
+                            </div>
                           </div>
                           <>
                             <button
