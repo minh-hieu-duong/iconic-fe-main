@@ -471,10 +471,11 @@ export default function VideoDownloader() {
                                     onClick={() => handleOpenNotes(note.id)}
                                     className="w-full h-[24px] bg-[#3FF066] text-black border-green-500 border rounded-full text-center font-medium px-2 text-[13px] truncate"
                                   >
-                                    {`ngày ${format(
+                                    {/* {`ngày ${format(
                                       parseDateSafely(note.dateShow),
                                       "d-M-yyyy HH:mm"
-                                    )}`}
+                                    )}`} */}
+                                    Note
                                   </button>
                                 ))}
                               </div>
