@@ -3,12 +3,13 @@ import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
 import { api } from "./Video";
 import { toast } from "react-toastify";
+import React from "react";
 
 export default function NoteAndSetting({ type }: any) {
   const [note, setNote] = useState("");
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [loading, setLoading] = useState(true);
-  const [openedLinks, setOpenedLinks] = useState<{ url: string }[]>([]);
+  const [openedLinks, setOpenedLinks] = useState([]);
 
   const fetchOpenedLinks = async () => {
     try {

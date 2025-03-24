@@ -12,7 +12,7 @@ using Products.Api.Database;
 namespace Products.Api.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20250318140412_InitialCreate")]
+    [Migration("20250324153047_InitialCreate")]
     partial class InitialCreate
     {
         /// <inheritdoc />
@@ -210,6 +210,9 @@ namespace Products.Api.Migrations
                         .HasColumnType("integer");
 
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<DateTime>("DateShow")
+                        .HasColumnType("timestamp with time zone");
 
                     b.Property<string>("Url")
                         .IsRequired()

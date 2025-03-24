@@ -16,6 +16,10 @@ public static class NoteEndpoints
 
         app.MapPost("/notes", async (ApplicationDbContext context, List<Note> notes) =>
         {
+            foreach (var note in notes)
+            {
+                note.DateShow = DateTime.UtcNow;
+            }
             await context.Notes.AddRangeAsync(notes);
             await context.SaveChangesAsync();
             return Results.Created("/notes", notes);

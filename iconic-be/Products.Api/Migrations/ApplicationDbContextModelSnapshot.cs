@@ -208,6 +208,9 @@ namespace Products.Api.Migrations
 
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
 
+                    b.Property<DateTime>("DateShow")
+                        .HasColumnType("timestamp with time zone");
+
                     b.Property<string>("Url")
                         .IsRequired()
                         .HasColumnType("text");

@@ -7,6 +7,8 @@ namespace Products.Api.Entities
         public int Id { get; set; }
 
         public string Url { get; set; } = string.Empty;
+
+        public DateTime DateShow { get; set; }
     }
 
 }
