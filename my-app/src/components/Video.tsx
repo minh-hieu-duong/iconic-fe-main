@@ -2,13 +2,11 @@ import { useState, useEffect } from "react";
 import axios from "axios";
 import { LoginForm } from "./LoginForm.tsx";
 import { VideoForm } from "./VideoForm.tsx";
-
-import { format } from "date-fns";
 import { toast } from "react-toastify";
-import { ChevronLeft, ChevronRight } from "lucide-react";
+import { ChevronLeft, ChevronRight, X } from "lucide-react";
 import React from "react";
 export const api = axios.create({
-  baseURL: "http://localhost:5000/", ///api
+  baseURL: "/api", ///api
   withCredentials: true,
 });
 
@@ -21,6 +19,8 @@ export default function VideoDownloader() {
   const [isOpen, setIsOpen] = useState(false);
   const [activeIndex, setActiveIndex] = useState(0);
   const [activeEdit, setActiveEdit] = useState(false);
+  const [fetch, setFetch] = useState(false);
+  const [editVideo, setEditVideo] = useState(0);
 
   // Sample data - replace with your actual images
   const images = [
@@ -43,7 +43,7 @@ export default function VideoDownloader() {
   };
   const [activeTab, setActiveTab] = useState(tabs[0].id);
   const [activeLink, setActiveLink] = useState(0);
-  const [activeLinkNote, setActiveLinkNote] = useState(0);
+  const [setActiveLinkNote] = useState(0);
 
   const [chacha, setChacha] = useState(false);
   const [url, setUrl] = useState("");
@@ -52,9 +52,18 @@ export default function VideoDownloader() {
 
   const [openedVideos, setOpenedVideos] = useState<any>([]);
   const [openedNotes, setOpenedNotes] = useState<any>([]);
-
-  // Lấy ngày hôm nay theo định dạng YYYY-MM-DD
-  const getTodayDate = () => new Date().toISOString().split("T")[0];
+  const deleteVideo = async (videoId) => {
+    try {
+      await api.delete(`/videos/${videoId}`);
+      setVideos((prevVideos) =>
+        prevVideos.filter((video) => video.id !== videoId)
+      );
+      setFetch(!fetch);
+      setEditVideo(0);
+    } catch (error) {
+      console.error("Lỗi khi xóa video:", error);
+    }
+  };
 
   // Gọi API lấy danh sách video
   useEffect(() => {
@@ -62,13 +71,7 @@ export default function VideoDownloader() {
       try {
         const response = await api.get("/videos");
         // Kiểm tra data có phải mảng không
-        const todayVideos = Array.isArray(response.data)
-          ? response.data.filter(
-              (video: any) =>
-                video.dateShow &&
-                video.dateShow.split("T")[0] === getTodayDate()
-            )
-          : [];
+        const todayVideos = response.data ?? [];
         setVideos(todayVideos);
         setActiveLink(todayVideos[0].id ?? 0);
       } catch (error) {
@@ -90,7 +93,7 @@ export default function VideoDownloader() {
 
     fetchVideos();
     fetchNotes();
-  }, []);
+  }, [fetch]);
   const deleteAllNotes = async () => {
     try {
       await api.delete("/notes");
@@ -125,7 +128,20 @@ export default function VideoDownloader() {
   }, [notes]); // Chạy lại khi danh sách notes thay đổi
 
   const [isAuthenticated, setIsAuthenticated] = useState(false);
-  // Giả sử tab hiện tại là note
+  const handleSubmit = async (name, link) => {
+    try {
+      await api.post("/videos", [
+        {
+          url: link,
+          name,
+        },
+      ]);
+      setFetch(!fetch);
+      toast("Video đã gửi thành công!");
+    } catch (error) {
+      toast("Lưu thất bại, vui lòng thử lại!");
+    }
+  };
   const handleSearch = async () => {
     try {
       const response = await api.get("/notes");
@@ -143,14 +159,6 @@ export default function VideoDownloader() {
     } catch (error) {
       toast("Lưu thất bại, vui lòng thử lại!");
     }
-  };
-  const parseDateSafely = (dateStr: string) => {
-    // Thay thế khoảng trắng bằng 'T' và thêm múi giờ
-    const isoString = dateStr.replace(" ", "T") + "Z";
-    const parsedDate = new Date(isoString);
-
-    // Fallback nếu vẫn lỗi
-    return isNaN(parsedDate.getTime()) ? new Date() : parsedDate;
   };
 
   // Hàm xử lý đăng nhập
@@ -241,8 +249,6 @@ export default function VideoDownloader() {
     document.body.removeChild(a);
     URL.revokeObjectURL(url);
   };
-  // Tìm kiếm video từ URL
-  console.log(activeLinkNote);
   return (
     <div>
       <header className="w-full flex items-center justify-between px-3 py-3 bg-[#1C1C1D] h-[45px]">
@@ -364,7 +370,7 @@ export default function VideoDownloader() {
                                     : "bg-black text-white"
                                 }`}
                               >
-                                Video {i + 1}
+                                {video.name}
                               </button>
                             ))}
                           </div>
@@ -471,11 +477,7 @@ export default function VideoDownloader() {
                                     onClick={() => handleOpenNotes(note.id)}
                                     className="w-full h-[24px] bg-[#3FF066] text-black border-green-500 border rounded-full text-center font-medium px-2 text-[13px] truncate"
                                   >
-                                    {/* {`ngày ${format(
-                                      parseDateSafely(note.dateShow),
-                                      "d-M-yyyy HH:mm"
-                                    )}`} */}
-                                    Note
+                                    Link {i + 1}
                                   </button>
                                 ))}
                               </div>
@@ -505,7 +507,7 @@ export default function VideoDownloader() {
                       ) : isAuthenticated && activeEdit ? (
                         <>
                           {/* Video Numbers */}
-                          {isOpen ? (
+                          {!isOpen ? (
                             <div>
                               {/* Div cha chứa viền và padding */}
                               <div className="flex justify-center bg-white rounded-[47px] mb-4 px-3 w-full h-[48px] border-2 border-gray-200">
@@ -517,7 +519,7 @@ export default function VideoDownloader() {
                                       <button
                                         key={video.id}
                                         className={`flex items-center justify-center w-[32px] h-[32px] rounded-full text-sm font-bold transition-all ${
-                                          video.id === activeLink
+                                          video.id == editVideo
                                             ? "bg-[#3FF066] text-black scale-110 border-2 border-black"
                                             : "bg-black text-white border-2 border-green-500 hover:bg-gray-800"
                                         }`}
@@ -533,20 +535,32 @@ export default function VideoDownloader() {
                                 {/* Div container bên trong nhỏ hơn để chứa scrollbar */}
                                 <div className="overflow-x-auto no-scrollbar max-h-[132px] rounded-xl">
                                   <div className="space-y-2">
-                                    {videos.map((video, i) => (
-                                      <button
+                                    {videos.map((video) => (
+                                      <div
                                         key={video.id}
-                                        onClick={() =>
-                                          handleOpenVideo(video.id, video.url)
-                                        }
-                                        className={`w-full h-[24px] border-green-500 border rounded-full text-center font-medium px-2 text-[13px] truncate  ${
-                                          video.id == activeLink
-                                            ? "bg-[#3FF066] text-black"
-                                            : "bg-black text-white"
-                                        }`}
+                                        className="flex items-center gap-2"
                                       >
-                                        Video {i + 1}
-                                      </button>
+                                        <button
+                                          onClick={() => setEditVideo(video.id)}
+                                          className={`relative  w-full h-[24px] border-green-500 border rounded-full text-center font-medium px-2 text-[13px] truncate ${
+                                            video.id == editVideo
+                                              ? "bg-[#3FF066] text-black"
+                                              : "bg-black text-white"
+                                          }`}
+                                        >
+                                          {video.name}
+                                          {video.id == editVideo && (
+                                            <button
+                                              onClick={() =>
+                                                deleteVideo(video.id)
+                                              }
+                                              className=" absolute right-0.5 bg-red-500 text-black rounded-full float-end"
+                                            >
+                                              <X size={18} />
+                                            </button>
+                                          )}
+                                        </button>
+                                      </div>
                                     ))}
                                   </div>
                                 </div>
@@ -554,7 +568,7 @@ export default function VideoDownloader() {
 
                               {/* Watch Video Button */}
                               <button
-                                onClick={() => setActiveEdit(!activeEdit)}
+                                onClick={() => setIsOpen(!isOpen)}
                                 className="rounded-full h-[34px] w-full bg-[#3FF066] text-black font-extrabold text-sm cursor-pointer"
                               >
                                 Add Link
@@ -567,7 +581,11 @@ export default function VideoDownloader() {
                               </button>
                             </div>
                           ) : (
-                            <VideoForm isOpen={isOpen} setIsOpen={setIsOpen} />
+                            <VideoForm
+                              isOpen={isOpen}
+                              setIsOpen={setIsOpen}
+                              onSubmit={handleSubmit}
+                            />
                           )}
                         </>
                       ) : (

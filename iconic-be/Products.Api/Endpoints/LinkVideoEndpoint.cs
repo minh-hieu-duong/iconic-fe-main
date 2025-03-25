@@ -11,7 +11,7 @@ public static class LinkVideoEndpoints
         // 📌 Lấy danh sách link video
         app.MapGet("/videos", async (ApplicationDbContext context) =>
         {
-            var videos = await context.LinkVideos.OrderBy(v => v.DateShow).ToListAsync();
+            var videos = await context.LinkVideos.ToListAsync();
             return Results.Ok(videos);
         });
 

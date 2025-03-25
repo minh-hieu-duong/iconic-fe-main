@@ -9,6 +9,6 @@ namespace Products.Api.Entities
 
         public string Url { get; set; } = string.Empty;
 
-        public DateTime DateShow { get; set; }
+        public string Name { get; set; } = string.Empty;
     }
 }
