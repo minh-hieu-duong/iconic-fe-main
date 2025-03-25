@@ -447,9 +447,12 @@ export default function VideoDownloader() {
                         </div>
                       </div>
                       {/* Watch Video Button */}
-                      <button className="rounded-full h-[34px] w-full bg-[#3FF066] text-black font-extrabold text-sm cursor-pointer">
+                      <a
+                        href="tel:0866535203"
+                        className="rounded-full h-[34px] w-full bg-[#3FF066] text-black font-extrabold text-sm cursor-pointer flex items-center justify-center"
+                      >
                         Call
-                      </button>
+                      </a>
                     </>
                   )}
                   {tab.type === "payout" && (
