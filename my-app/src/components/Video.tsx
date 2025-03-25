@@ -225,13 +225,19 @@ export default function VideoDownloader() {
   const handleOpenNotes = (url: any) => {
     window.open(url, "_blank");
   };
-  console.log("Opened Notes:", openedNotes);
   // Mở video đầu tiên chưa mở
   const openFirstUnopened = () => {
     const firstUnopened = videos.find(
       (video: any) => !openedVideos.includes(video.id)
     );
-    if (firstUnopened) handleOpenVideo(firstUnopened.id, firstUnopened.url);
+    if (firstUnopened) {
+      handleOpenVideo(firstUnopened.id, firstUnopened.url);
+    } else {
+      localStorage.removeItem("lastWatchedVideoId");
+      localStorage.removeItem("openedVideos");
+      setActiveLink(videos[0].id);
+      setOpenedVideos([]);
+    }
   };
   const openFirstNoteUnopened = () => {
     const textContent = notes.map((note) => `${note.url}`).join("\n");
@@ -249,6 +255,8 @@ export default function VideoDownloader() {
     document.body.removeChild(a);
     URL.revokeObjectURL(url);
   };
+
+  console.log(activeLink);
   return (
     <div>
       <header className="w-full flex items-center justify-between px-3 py-3 bg-[#1C1C1D] h-[45px]">
@@ -340,7 +348,7 @@ export default function VideoDownloader() {
                                 <button
                                   key={video.id}
                                   className={`flex items-center justify-center w-[32px] h-[32px] rounded-full text-sm font-bold transition-all ${
-                                    video.id === activeLink
+                                    video.id + 1 === activeLink
                                       ? "bg-[#3FF066] text-black scale-110 border-2 border-black"
                                       : "bg-black text-white border-2 border-green-500 hover:bg-gray-800"
                                   }`}
@@ -365,7 +373,7 @@ export default function VideoDownloader() {
                                   handleOpenVideo(video.id, video.url)
                                 }
                                 className={`w-full h-[24px] border-green-500 border rounded-full text-center font-medium px-2 text-[13px] truncate  ${
-                                  video.id == activeLink
+                                  video.id + 1 === activeLink
                                     ? "bg-[#3FF066] text-black"
                                     : "bg-black text-white"
                                 }`}
@@ -447,12 +455,9 @@ export default function VideoDownloader() {
                         </div>
                       </div>
                       {/* Watch Video Button */}
-                      <a
-                        href="tel:0866535203"
-                        className="rounded-full h-[34px] w-full bg-[#3FF066] text-black font-extrabold text-sm cursor-pointer flex items-center justify-center"
-                      >
+                      <button className="rounded-full h-[34px] w-full bg-[#3FF066] text-black font-extrabold text-sm cursor-pointer">
                         Call
-                      </a>
+                      </button>
                     </>
                   )}
                   {tab.type === "payout" && (
