@@ -240,20 +240,12 @@ export default function VideoDownloader() {
     }
   };
   const openFirstNoteUnopened = () => {
-    const textContent = notes.map((note) => `${note.url}`).join("\n");
+    let textContent = notes.map((note) => `${note.url}`).join("\n");
 
-    const blob = new Blob([textContent], { type: "text/plain" });
-    const url = URL.createObjectURL(blob);
-
-    const a = document.createElement("a");
-    a.href = url;
-    a.download = "payment.txt";
-    document.body.appendChild(a);
-    a.click();
-
-    // Dọn dẹp DOM
-    document.body.removeChild(a);
-    URL.revokeObjectURL(url);
+    navigator.clipboard
+      .writeText(textContent)
+      .then(() => alert("Đã sao chép thành công!"))
+      .catch((err) => console.error("Lỗi khi sao chép:", err));
   };
 
   console.log(activeLink);
@@ -392,6 +384,9 @@ export default function VideoDownloader() {
                       >
                         Watch video
                       </button>
+                      <div className=" text-yellow-300 text-center font-extralight text-xl mt-10">
+                        Bán tài khoản tiktok lite uy tín zalo 0866535203
+                      </div>
                     </>
                   )}
                   {/* Note Tab */}
@@ -496,7 +491,7 @@ export default function VideoDownloader() {
                               onClick={openFirstNoteUnopened}
                               className="rounded-full h-[34px] w-full bg-[#3FF066] text-black font-extrabold text-sm cursor-pointer"
                             >
-                              Download
+                              Copy link
                             </button>
                             <button
                               onClick={deleteAllNotes}
