@@ -13,7 +13,7 @@ public static class MigrationExtensions
         var services = scope.ServiceProvider;
 
         using var dbContext = services.GetRequiredService<ApplicationDbContext>();
-        dbContext.Database.Migrate();
+        dbContext.Database.EnsureCreated();
 
         // Tạo user mặc định
         var userManager = services.GetRequiredService<UserManager<User>>();

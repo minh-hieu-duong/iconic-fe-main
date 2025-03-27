@@ -32,7 +32,7 @@ builder.Services.AddCors(options =>
 
 builder.Services.AddIdentityCore<User>().AddEntityFrameworkStores<ApplicationDbContext>().AddApiEndpoints();
 builder.Services.AddDbContext<ApplicationDbContext>(
-    options => options.UseNpgsql(builder.Configuration.GetConnectionString("Database")));
+    options => options.UseSqlite("DataSource=app.db"));
 
 var app = builder.Build();
 
