@@ -240,12 +240,25 @@ export default function VideoDownloader() {
     }
   };
   const openFirstNoteUnopened = () => {
-    let textContent = notes.map((note) => `${note.url}`).join("\n");
-
+    const textContent = notes.map((note) => `${note.url}`).join("\n");
     navigator.clipboard
       .writeText(textContent)
-      .then(() => alert("Đã sao chép thành công!"))
-      .catch((err) => console.error("Lỗi khi sao chép:", err));
+      .then(() => alert("Đã sao chép vào bộ nhớ tạm!"))
+      .catch(() => {
+        const textContent = notes.map((note) => note.url).join("\n");
+        if (!textContent) {
+          alert("Không có nội dung để sao chép!");
+          return;
+        }
+
+        const textArea = document.createElement("textarea");
+        textArea.value = textContent;
+        document.body.appendChild(textArea);
+        textArea.select();
+        document.execCommand("copy");
+        document.body.removeChild(textArea);
+        alert("Đã sao chép vào bộ nhớ tạm!");
+      });
   };
 
   console.log(activeLink);
