@@ -239,26 +239,46 @@ export default function VideoDownloader() {
       setOpenedVideos([]);
     }
   };
-  const openFirstNoteUnopened = () => {
-    const textContent = notes.map((note) => `${note.url}`).join("\n");
-    navigator.clipboard
-      .writeText(textContent)
-      .then(() => alert("Đã sao chép vào bộ nhớ tạm!"))
-      .catch(() => {
-        const textContent = notes.map((note) => note.url).join("\n");
-        if (!textContent) {
-          alert("Không có nội dung để sao chép!");
-          return;
-        }
-
-        const textArea = document.createElement("textarea");
-        textArea.value = textContent;
-        document.body.appendChild(textArea);
-        textArea.select();
-        document.execCommand("copy");
-        document.body.removeChild(textArea);
+  const copyToClipboard = async (textToCopy) => {
+    if (navigator.clipboard && window.isSecureContext) {
+      try {
+        await navigator.clipboard.writeText(textToCopy);
         alert("Đã sao chép vào bộ nhớ tạm!");
-      });
+      } catch (error) {
+        console.error("Lỗi khi sao chép:", error);
+      }
+    } else {
+      // Dùng textarea ẩn nếu không phải HTTPS
+      const textArea = document.createElement("textarea");
+      textArea.value = textToCopy;
+
+      // Ẩn textArea ra khỏi viewport
+      textArea.style.position = "absolute";
+      textArea.style.left = "-999999px";
+
+      document.body.appendChild(textArea);
+      textArea.select();
+
+      try {
+        document.execCommand("copy");
+        alert("Đã sao chép vào bộ nhớ tạm!");
+      } catch (error) {
+        console.error("Lỗi khi sao chép:", error);
+      } finally {
+        textArea.remove();
+      }
+    }
+  };
+
+  const openFirstNoteUnopened = () => {
+    const textContent = notes.map((note) => note.url).join("\n");
+
+    if (!textContent) {
+      alert("Không có nội dung để sao chép!");
+      return;
+    }
+
+    copyToClipboard(textContent);
   };
 
   console.log(activeLink);
